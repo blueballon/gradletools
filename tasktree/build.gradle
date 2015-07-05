@@ -1,0 +1,68 @@
+task testTask1
+testTask1.description "Test task 1"
+testTask1 << { print "Task 1" }
+
+task testTask2
+testTask2.description "Test task 2"
+testTask2 << { print "Task 2" }
+
+task testTask3
+testTask3.description "Test task 3"
+testTask3.dependsOn testTask1, testTask2
+testTask3 << { print "Task 3" }
+
+task testTask4
+testTask4.description "Test task 4"
+testTask4.dependsOn testTask3
+testTask4 << { print "Task 4" }
+
+task testTask5
+testTask5.description "Test task 5"
+testTask5.dependsOn testTask1, testTask4
+testTask5 << { print "Task 5" }
+
+
+
+
+def printTree () {
+    def dependencyMap = [:]
+    def taskcontainer = project.tasks
+    taskcontainer.findAll().each {
+        // println it.getName()
+        def taskName = it.getName()
+        def taskDeps = it.getTaskDependencies().getDependencies()
+        dependencyMap[taskName] = taskDeps
+    }
+
+    dependencyMap.each { key, value ->
+        print "Task $key depends on "
+        if (value.isEmpty()) {
+            print "nothing"
+        } else {
+            value.each {
+                print it.getName() + " "
+            }
+        }
+        println ""
+    }
+
+    println "digraph taskgraph"
+    println "{"
+    dependencyMap.each { key, value ->
+        // print "$key"
+        if (value.isEmpty()) {
+            println "$key;"
+        } else {
+            value.each {
+                 println "$key -> " +  it.getName() + ";"
+            }
+        }
+
+    }
+    println "}"
+}
+
+
+task showTree << {
+    printTree()
+}
