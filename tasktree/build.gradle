@@ -1,3 +1,12 @@
+// a simple method to create gradle task dependecy graphs
+// (c)2015 Alexander Haas
+// Licensed under Apache  License 2.0
+
+
+defaultTasks ('generateTree')
+
+
+// these are just dummy tasks to demonstrate the dependency tree
 task testTask1
 testTask1.description "Test task 1"
 testTask1 << { print "Task 1" }
@@ -23,46 +32,46 @@ testTask5 << { print "Task 5" }
 
 
 
-
-def printTree () {
+// build up a task - dependency - map for the current project
+def buildDependencyMap () {
     def dependencyMap = [:]
     def taskcontainer = project.tasks
     taskcontainer.findAll().each {
-        // println it.getName()
         def taskName = it.getName()
         def taskDeps = it.getTaskDependencies().getDependencies()
         dependencyMap[taskName] = taskDeps
     }
+    return (dependencyMap)
+}
 
-    dependencyMap.each { key, value ->
-        print "Task $key depends on "
-        if (value.isEmpty()) {
-            print "nothing"
-        } else {
-            value.each {
-                print it.getName() + " "
+// print the given map in dot syntax to the given file
+def generateDependenciesAsDot(dependencyMap, outputFileName) {
+    new File(outputFileName).withWriter { outfile ->
+        outfile.writeLine("digraph taskgraph")
+        outfile.writeLine("{")
+        dependencyMap.each { key, value ->
+            // print "$key"
+            if (value.isEmpty()) {
+                outfile.writeLine("    $key;")
+            } else {
+                value.each {
+                     outfile.writeLine("    $key -> " +  it.getName() + ";")
+                }
             }
-        }
-        println ""
-    }
 
-    println "digraph taskgraph"
-    println "{"
-    dependencyMap.each { key, value ->
-        // print "$key"
-        if (value.isEmpty()) {
-            println "$key;"
-        } else {
-            value.each {
-                 println "$key -> " +  it.getName() + ";"
-            }
         }
-
+        outfile.writeLine("}")
     }
-    println "}"
 }
 
 
-task showTree << {
-    printTree()
+// this task initiates the tree graph creation
+task generateTree  {
+    inputs.file "build.gradle"
+    outputs.file "testfile.png"
+}
+
+generateTree << {
+    generateDependenciesAsDot(buildDependencyMap(), "testfile.dot")
+    def dotcommand = "/usr/bin/dot -Tpng -otestfile.png testfile.dot".execute()
 }
