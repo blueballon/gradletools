@@ -5,10 +5,12 @@ import java.awt.*
 mySwingBuilder = new groovy.swing.SwingBuilder()
 
 frame = mySwingBuilder.frame(title: "Klicken",
-                             size:[200,100],
+                            // size:[200,100],
                              defaultCloseOperation:WindowConstants.EXIT_ON_CLOSE) {
-    panel() {
+    vbox {
+        panel() {
         tabbedPane(tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT) {
+
             panel(name: 'Task to Run') {
                 vbox {
                     panel() {   // upper button part
@@ -52,10 +54,23 @@ frame = mySwingBuilder.frame(title: "Klicken",
 
 
         }  // end tabbed pane
-        frame(name: "Command line") {
+        }  // end panel top
 
+        panel(name: "Commandline",
+              border: compoundBorder([emptyBorder(10), titledBorder('Command line:')])) {
+            hbox {
+                textField(columns: 40) {
+
+                }
+                button("Run command",
+                   foreground:Color.RED,
+                   actionPerformed: {println "run pressed"})
+                button("Bookmark...",
+                   actionPerformed: {println "run pressed"})
+            }
         }
 
-    }   // end master panel
+
+    }   // end master vbox
 }
 frame.visible = true
