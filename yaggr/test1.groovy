@@ -1,11 +1,12 @@
 import groovy.swing.SwingBuilder
 import javax.swing.*
 import java.awt.*
+import static java.awt.GridBagConstraints.*
 
 mySwingBuilder = new groovy.swing.SwingBuilder()
 
-frame = mySwingBuilder.frame(title: "Klicken",
-                            // size:[200,100],
+frame = mySwingBuilder.frame(title: "yaGGr (groovy test variant) 0.01",
+                             size:[650,600],
                              defaultCloseOperation:WindowConstants.EXIT_ON_CLOSE) {
     vbox {
         panel() {
@@ -18,17 +19,17 @@ frame = mySwingBuilder.frame(title: "Klicken",
                                          'Show only tasks with description',
                                          'Show only tasks matching the FAVorite keyword',
                                          'Show bookmarked tasks'],
-                           actionPerformed: {println "combopressed"})
+                           actionPerformed: {println "combo (run) pressed"})
                         button("Refresh task list",
                            foreground:Color.BLUE,
-                           actionPerformed: {println "refresh pressed"})
+                           actionPerformed: {println "refresh (run) pressed"})
                     }
                     panel {
                         scrollPane() {   // table part
                             table() {
                                 tableModel() {
-                                    propertyColumn(header: 'Task', propertyName: 'TASKNAME')
-                                    propertyColumn(header: 'Description', propertyName: 'DESCRIPTION')
+                                    propertyColumn(header: 'Task name', propertyName: 'RUNTASKNAME')
+                                    propertyColumn(header: 'Task description', propertyName: 'RUNTASKDESC')
                                 }
                             }
                         }
@@ -38,17 +39,103 @@ frame = mySwingBuilder.frame(title: "Klicken",
 
 
             panel(name: 'Properties') {
-
+                scrollPane() {   // table part
+                    table() {
+                        tableModel() {
+                            propertyColumn(header: 'Property name', propertyName: 'PROPNAME')
+                            propertyColumn(header: 'Property value', propertyName: 'PROPVALUE')
+                            propertyColumn(header: 'Is active?', propertyName: 'PROPACTIVE')
+                        }
+                    }
+                }
             }   // end tab Properties
 
 
             panel(name: 'Task selection/deselection') {
-
+                vbox {
+                    panel() {   // upper button part
+                        comboBox(items: ['Show all tasks',
+                                         'Show only tasks with description',
+                                         'Show only tasks matching the FAVorite keyword',
+                                         'Show bookmarked tasks'],
+                           actionPerformed: {println "combo (sel/desel) pressed"})
+                        button("Refresh task list",
+                           foreground:Color.BLUE,
+                           actionPerformed: {println "refresh (sel/desel) pressed"})
+                    }
+                    panel {
+                        scrollPane() {   // table part
+                            table() {
+                                tableModel() {
+                                    propertyColumn(header: 'Task name', propertyName: 'SELTASKNAME')
+                                    propertyColumn(header: 'Task description', propertyName: 'SELTASKDESC')
+                                    propertyColumn(header: 'Is Active?', propertyName: 'SELTASKACTIVE')
+                                }
+                            }
+                        }
+                    }
+                }
             }   // end tab task selection/deselection
 
+            panel(name: 'Bookmarks') {
+                scrollPane() {   // table part
+                    table() {
+                        tableModel() {
+                            propertyColumn(header: 'Bookmark name', propertyName: 'BOOKMNAME')
+                            propertyColumn(header: 'Command line', propertyName: 'BOOKMCMD')
+                        }
+                    }
+                }
+            }   // end tab Bookmarks
 
 
             panel(name: 'Settings') {
+                def defaultInsets = [0,0,10,0]
+
+
+
+                gridBagLayout()
+
+                label (
+                    text: "Gradle command: ",
+                    constraints: gbc(gridx:0,gridy:0,fill:HORIZONTAL,insets:defaultInsets)
+                )
+                textField(
+                    columns: 30,
+                    constraints:gbc(gridx:1,gridy:0,gridwidth:REMAINDER,fill:HORIZONTAL,insets:defaultInsets)
+                )
+
+                label (
+                    text: "FAVorite keyword regex: ",
+                    constraints: gbc(gridx:0,gridy:1,fill:HORIZONTAL,insets:defaultInsets)
+                )
+                textField(
+                    columns: 30,
+                    constraints:gbc(gridx:1,gridy:1,gridwidth:REMAINDER,fill:HORIZONTAL,insets:defaultInsets)
+                )
+
+                label (
+                    text: "Log Level: ",
+                    constraints: gbc(gridx:0,gridy:2,fill:HORIZONTAL,insets:defaultInsets)
+                )
+                logLevGroup = buttonGroup(constraints: gbc(gridx:1,gridy:2,fill:HORIZONTAL,insets:defaultInsets));
+                vbox {
+                    radioButton(text:"Default", buttonGroup:logLevGroup, selected:true);
+                    radioButton(text:"Quiet", buttonGroup:logLevGroup);
+                    radioButton(text:"Info", buttonGroup:logLevGroup);
+                    radioButton(text:"Debug", buttonGroup:logLevGroup);
+                }
+
+                label (
+                    text: "Stack Trace: ",
+                    constraints: gbc(gridx:0,gridy:3,fill:HORIZONTAL,insets:defaultInsets)
+                )
+                logLevGroup = buttonGroup(constraints: gbc(gridx:1,gridy:3,fill:HORIZONTAL,insets:defaultInsets));
+                vbox {
+                    radioButton(text:"None", buttonGroup:logLevGroup, selected:true);
+                    radioButton(text:"Regular", buttonGroup:logLevGroup);
+                    radioButton(text:"Full", buttonGroup:logLevGroup);
+                }
 
             }  // end tab settings
 
@@ -57,16 +144,16 @@ frame = mySwingBuilder.frame(title: "Klicken",
         }  // end panel top
 
         panel(name: "Commandline",
-              border: compoundBorder([emptyBorder(10), titledBorder('Command line:')])) {
+              border: titledBorder('Command line:')) {
             hbox {
-                textField(columns: 40) {
+                textField(columns: 30) {
 
                 }
                 button("Run command",
                    foreground:Color.RED,
                    actionPerformed: {println "run pressed"})
                 button("Bookmark...",
-                   actionPerformed: {println "run pressed"})
+                   actionPerformed: {println "bookmark pressed"})
             }
         }
 
